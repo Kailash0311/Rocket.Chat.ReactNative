@@ -28,6 +28,7 @@ import AdminPanelView from './views/AdminPanelView';
 import RoomActionsView from './views/RoomActionsView';
 import RoomInfoView from './views/RoomInfoView';
 import RoomInfoEditView from './views/RoomInfoEditView';
+import RoomFollowView from './views/RoomFollowView'
 import RoomMembersView from './views/RoomMembersView';
 import SearchMessagesView from './views/SearchMessagesView';
 import ReadReceiptsView from './views/ReadReceiptView';
@@ -111,6 +112,7 @@ const ChatsStack = createStackNavigator({
 	RoomActionsView,
 	RoomInfoView,
 	RoomInfoEditView,
+	RoomFollowView,
 	RoomMembersView,
 	SearchMessagesView,
 	SelectedUsersView,
