@@ -99,6 +99,9 @@ const ChatsStack = createStackNavigator({
 	RoomMembersView: {
 		getScreen: () => require('./views/RoomMembersView').default
 	},
+	RoomFollowView: {
+		getScreen: () => require('./views/RoomFollowView').default
+	},
 	SearchMessagesView: {
 		getScreen: () => require('./views/SearchMessagesView').default
 	},
