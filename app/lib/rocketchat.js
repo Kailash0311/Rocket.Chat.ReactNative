@@ -651,6 +651,9 @@ const RocketChat = {
 	},
 	saveRoomSettings(rid, params) {
 		// RC 0.55.0
+		console.warn("THisisawarning");
+		// console.warn({"a": "this is a // WARNING: "});
+		// console.warn(this.sdk.methodCall('saveRoomSettings', rid, params));
 		return this.sdk.methodCall('saveRoomSettings', rid, params);
 	},
 	saveUserProfile(data, customFields) {

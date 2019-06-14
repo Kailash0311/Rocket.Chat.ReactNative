@@ -60,12 +60,17 @@ export default class Sidebar extends Component {
 		super(props);
 		this.state = {
 			showStatus: false,
-			status: []
+			status: [],
+			showSA: false,
+			SAs: []
 		};
 	}
 
 	componentDidMount() {
 		this.setStatus();
+		// TODO after APIs.
+		// write code which fetches SA from user and adds user service accounts to SAs array.
+		this.setSAs();
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -76,11 +81,14 @@ export default class Sidebar extends Component {
 	}
 
 	shouldComponentUpdate(nextProps, nextState) {
-		const { status, showStatus } = this.state;
+		const { status, showStatus, showSA } = this.state;
 		const {
 			Site_Name, user, baseUrl, activeItemKey
 		} = this.props;
 		if (nextState.showStatus !== showStatus) {
+			return true;
+		}
+		if (nextState.showSA !== showSA) {
 			return true;
 		}
 		if (nextProps.Site_Name !== Site_Name) {
@@ -130,9 +138,27 @@ export default class Sidebar extends Component {
 		});
 	}
 
+	setSAs = () => { // hardcoded
+		// we can add other params such as avatar url to display along with the name which will be fetched by API.
+		this.setState({
+			SAs: [{
+				name: 'Service Accounts - 1'
+			}, {
+				name: 'Service Accounts - 2'
+			}, {
+				name: 'Service Accounts - 3'
+			}]
+		});
+	}
+
 	toggleStatus = () => {
 		LayoutAnimation.easeInEaseOut();
 		this.setState(prevState => ({ showStatus: !prevState.showStatus }));
+	}
+
+	toggleSA = () => {
+		LayoutAnimation.easeInEaseOut();
+		this.setState(prevState => ({ showSA: !prevState.showSA }));
 	}
 
 	sidebarNavigate = (route) => {
@@ -179,8 +205,35 @@ export default class Sidebar extends Component {
 		);
 	}
 
+	renderSAItem = ({ item }) => {
+		const { user } = this.props;
+		return (
+			<SidebarItem
+				text={item.name}
+				onPress={() => {
+					console.warn(`Pressed service account ${ item.name }`);
+					user.username = item.name;
+					this.setState(user);
+				}}
+			/>
+		);
+	}
+
+	renderSA = () => {
+		const { SAs } = this.state;
+		return (
+			<FlatList
+				key='status-list'
+				data={SAs}
+				renderItem={this.renderSAItem}
+				keyExtractor={keyExtractor}
+			/>
+		);
+	}
+
 	renderNavigation = () => {
 		const { activeItemKey } = this.props;
+		const { showSA } = this.state;
 		return (
 			<React.Fragment>
 				<SidebarItem
@@ -213,6 +266,21 @@ export default class Sidebar extends Component {
 						current={activeItemKey === 'AdminPanelStack'}
 					/>
 				) : null}
+				<RectButton
+					onPress={this.toggleSA}
+					underlayColor={COLOR_TEXT}
+					activeOpacity={0.1}
+					testID='open-SA-menu'
+					style={styles.header}
+				>
+					<View style={styles.headerTextContainer}>
+						<Text numberOfLines={1} style={styles.username}>service accounts</Text>
+					</View>
+					<CustomIcon name='arrow-down' size={20} style={[styles.headerIcon, showSA && styles.inverted]} />
+				</RectButton>
+
+				{showSA ? this.renderSA() : null}
+
 				<Separator key='separator-logout' />
 				<SidebarItem
 					text={I18n.t('Logout')}

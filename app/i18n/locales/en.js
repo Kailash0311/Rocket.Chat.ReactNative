@@ -137,6 +137,7 @@ export default {
 	Permalink: 'Permalink',
 	Create_account: 'Create an account',
 	Create_Channel: 'Create Channel',
+	Create_Service_Account: 'Create Service Account',
 	Created_snippet: 'Created a snippet',
 	Create_a_new_workspace: 'Create a new workspace',
 	Create: 'Create',

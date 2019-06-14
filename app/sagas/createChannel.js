@@ -12,6 +12,7 @@ const create = function* create(data) {
 
 const handleRequest = function* handleRequest({ data }) {
 	try {
+		console.warn(data);
 		const auth = yield select(state => state.login.isAuthenticated);
 		if (!auth) {
 			yield take(LOGIN.SUCCESS);
