@@ -68,6 +68,7 @@ const RocketChat = {
 	async getServerInfo(server) {
 		try {
 			const result = await fetch(`${ server }/api/info`).then(response => response.json());
+			console.warn("I am here", result);
 			if (result.success) {
 				if (semver.lt(result.version, MIN_ROCKETCHAT_VERSION)) {
 					return {
@@ -164,7 +165,7 @@ const RocketChat = {
 
 			this.sdk = new RocketchatClient({ host: server, protocol: 'ddp', useSsl });
 			this.getSettings();
-
+			console.log(this.sdk)
 			this.sdk.connect()
 				.then(() => {
 					if (user && user.token) {
@@ -215,6 +216,12 @@ const RocketChat = {
 
 			resolve();
 		});
+	},
+
+	createServiceAccount(credentials) {
+		// RC Service Accounts PR
+		console.log("Here iam in apis");
+		return this.sdk.post('serviceAccounts.create', credentials);
 	},
 
 	register(credentials) {
