@@ -166,15 +166,14 @@ export default class CreateSA extends React.Component {
 	}
 
 	onChangeTextForDesc= (description) => {
-		const { navigation } = this.props;
-		navigation.setParams({ showSubmit: description.trim().length > 0 });
 		this.setState({ description });
 	}
 
-	submit = async(data) => {
+	submit = async() => {
+		const data = this.state;
 		const { navigation } = this.props;
 		await RocketChat.createServiceAccount(data);
-		navigation.navigate('ChatsStack');
+		await navigation.navigate('RoomsListView');
 	}
 
 	render() {
@@ -209,7 +208,7 @@ export default class CreateSA extends React.Component {
 					underlineColorAndroid='transparent'
 				/>}
 				{<TextInput
-					label='@username'
+					label='Set Username Of the Service Account'
 					style={styles.input}
 					value={username}
 					onChangeText={this.onChangeTextForUsername}
