@@ -149,19 +149,22 @@ export default class CreateSA extends React.Component {
 
 	onChangeTextForName = (name) => {
 		const { navigation } = this.props;
-		navigation.setParams({ showSubmit: name.trim().length > 0 });
+		const { username, password } = this.state;
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && username.trim().length > 0) });
 		this.setState({ name });
 	}
 
 	onChangeTextForPassword = (password) => {
 		const { navigation } = this.props;
-		navigation.setParams({ showSubmit: password.trim().length > 0 });
+		const { username, name } = this.state;
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && username.trim().length > 0) });
 		this.setState({ password });
 	}
 
 	onChangeTextForUsername = (username) => {
 		const { navigation } = this.props;
-		navigation.setParams({ showSubmit: username.trim().length > 0 });
+		const { name, password } = this.state;
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && username.trim().length > 0) });
 		this.setState({ username });
 	}
 
@@ -213,7 +216,7 @@ export default class CreateSA extends React.Component {
 					value={username}
 					onChangeText={this.onChangeTextForUsername}
 					returnKeyType='done'
-					placeholder='@username'
+					placeholder='Username'
 					placeholderTextColor={COLOR_TEXT_DESCRIPTION}
 					autoCorrect={false}
 					autoCapitalize='none'

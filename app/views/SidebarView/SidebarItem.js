@@ -7,7 +7,7 @@ import styles from './styles';
 import { COLOR_TEXT } from '../../constants/colors';
 
 const Item = React.memo(({
-	left, text, onPress, testID, current
+	right, left, text, onPress, testID, current
 }) => (
 	<RectButton
 		key={testID}
@@ -25,10 +25,14 @@ const Item = React.memo(({
 				{text}
 			</Text>
 		</View>
+		<View style={styles.itemRight}>
+			{right}
+		</View>
 	</RectButton>
 ));
 
 Item.propTypes = {
+	right: PropTypes.element,
 	left: PropTypes.element,
 	text: PropTypes.string,
 	current: PropTypes.bool,

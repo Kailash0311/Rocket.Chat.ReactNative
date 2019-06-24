@@ -81,7 +81,9 @@ export default class Sidebar extends Component {
 	}
 
 	shouldComponentUpdate(nextProps, nextState) {
-		const { status, showStatus, showSA } = this.state;
+		const {
+			status, showStatus, showSA
+		} = this.state;
 		const {
 			Site_Name, user, baseUrl, activeItemKey
 		} = this.props;
@@ -142,11 +144,14 @@ export default class Sidebar extends Component {
 		// we can add other params such as avatar url to display along with the name which will be fetched by API.
 		this.setState({
 			SAs: [{
-				name: 'Service Accounts - 1'
+				name: 'Service Account - 1',
+				unread: 5
 			}, {
-				name: 'Service Accounts - 2'
+				name: 'Service Account - 2',
+				unread: 6
 			}, {
-				name: 'Service Accounts - 3'
+				name: 'Service Account - 3',
+				unread: 4
 			}]
 		});
 	}
@@ -215,6 +220,7 @@ export default class Sidebar extends Component {
 					user.username = item.name;
 					this.setState(user);
 				}}
+				right={<Text>{item.unread}</Text>} // hardcoded
 			/>
 		);
 	}
@@ -266,19 +272,13 @@ export default class Sidebar extends Component {
 						current={activeItemKey === 'AdminPanelStack'}
 					/>
 				) : null}
-				<RectButton
+				<SidebarItem
+					text='Service Accounts'
+					left={<CustomIcon name='cog' size={20} color={COLOR_TEXT} />}
+					right={<View style={{ display: 'flex', flexDirection: 'row' }}><Text>15</Text><CustomIcon name='arrow-down' size={20} style={[styles.headerIcon, showSA && styles.inverted]} /></View>} // hardcoded the number
 					onPress={this.toggleSA}
-					underlayColor={COLOR_TEXT}
-					activeOpacity={0.1}
-					testID='open-SA-menu'
-					style={styles.header}
-				>
-					<View style={styles.headerTextContainer}>
-						<Text numberOfLines={1} style={styles.username}>service accounts</Text>
-					</View>
-					<CustomIcon name='arrow-down' size={20} style={[styles.headerIcon, showSA && styles.inverted]} />
-				</RectButton>
-
+					testID='sidebar-settings'
+				/>
 				{showSA ? this.renderSA() : null}
 
 				<Separator key='separator-logout' />
