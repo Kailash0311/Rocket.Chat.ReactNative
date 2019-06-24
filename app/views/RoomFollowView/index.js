@@ -24,7 +24,8 @@ const PAGE_SIZE = 25;
 	baseUrl: state.settings.Site_Url || state.server ? state.server.server : '',
 	user: {
 		id: state.login.user && state.login.user.id,
-		token: state.login.user && state.login.user.token
+		token: state.login.user && state.login.user.token,
+		username: state.login.user && state.login.user.username
 	}
 }))
 
@@ -45,7 +46,8 @@ export default class RoomFollowView extends React.Component {
 		room: PropTypes.object,
 		user: PropTypes.shape({
 			id: PropTypes.string,
-			token: PropTypes.string
+			token: PropTypes.string,
+			username: PropTypes.string
 		})
 	}
 
@@ -55,16 +57,17 @@ export default class RoomFollowView extends React.Component {
 		this.CANCEL_INDEX = 0;
 		this.MUTE_INDEX = 1;
 		this.actionSheetOptions = [''];
-		const { rid } = props.navigation.state.params;
+		const { rid, username } = props.navigation.state.params;
 		this.rooms = database.objects('subscriptions').filtered('rid = $0', rid);
 		this.permissions = RocketChat.hasPermission(['mute-user'], rid);
 		this.state = {
 			isLoading: false,
-			allUsers: false,
 			filtering: false,
 			rid,
+			username,
 			followers: [],
 			followersFiltered: [],
+			followingOfTheUser: [],
 			userLongPressed: {},
 			room: this.rooms[0] || {},
 			options: [],
@@ -79,11 +82,8 @@ export default class RoomFollowView extends React.Component {
 
 	shouldComponentUpdate(nextProps, nextState) {
 		const {
-			allUsers, filtering, followers, followersFiltered, userLongPressed, room, options, isLoading
+			filtering, followers, followersFiltered, userLongPressed, room, options, isLoading
 		} = this.state;
-		if (nextState.allUsers !== allUsers) {
-			return true;
-		}
 		if (nextState.filtering !== filtering) {
 			return true;
 		}
@@ -168,31 +168,45 @@ export default class RoomFollowView extends React.Component {
 		});
 	}
 
-	// eslint-disable-next-line react/sort-comp
 	fetchFollowers = async() => {
 		const {
-			followers, isLoading, allUsers, end
+			followers, isLoading, end, username
 		} = this.state;
-		const { navigation } = this.props;
+		const { user, navigation } = this.props;
 		if (isLoading || end) {
 			return;
 		}
 
 		this.setState({ isLoading: true });
 		try {
-			// Right now we are fetching MEMBERS of general room because there is no api for fetching followers.
-			const followersResult = await RocketChat.getRoomMembers('GENERAL', allUsers, followers.length, PAGE_SIZE);
+			let followersResult = {};
+			if (navigation.getParam('follow') === 'Followers') {
+				followersResult = await RocketChat.getFollowers(username);
+			} else {
+				followersResult = await RocketChat.getFollowing(username);
+			}
 			/*
-			 TODO here we have to differentiate with the help of the navigation param whether we want to want followers or following.
 			 Both followers and following are named as followers.
 			*/
-			const newFollowers = followersResult.records;
+			let newFollowers = [];
+			const resultPromises = [];
+			let results = [];
+			const followersArray = Object.keys(followersResult);
+			for (let i = 0; i < followersArray.length; i += 1) {
+				resultPromises.push(RocketChat.getUserInfo(followersArray[i]));
+			}
+			await Promise.all(resultPromises).then((resultsTemp) => {
+				results =	resultsTemp.map(el => el.user);
+			});
+			newFollowers = results;
+
+			const followingOfTheUser = await RocketChat.getFollowing(user.username);
 			this.setState({
 				followers: followers.concat(newFollowers || []),
+				followingOfTheUser,
 				isLoading: false,
 				end: newFollowers.length < PAGE_SIZE
 			});
-			navigation.setParams({ allUsers });
 		} catch (error) {
 			console.log('TCL: fetchFollowers -> error', error);
 			this.setState({ isLoading: false });
@@ -240,15 +254,13 @@ export default class RoomFollowView extends React.Component {
 
 	renderItem = ({ item }) => {
 		const { baseUrl, user } = this.props;
-		/*
-			mock up code which can be inserted after building an api, after which user will contain a field similar to followers(array) as shown below.
-
-			const { following } = user // following is a list of usernames which the user is following.
-			if item.username in user.following, then
-				following = true
-			else
-				following = false
-		*/
+		const { followingOfTheUser } = this.state;
+		let follow = false;
+		if (followingOfTheUser[item._id] === '') {
+			follow = true;
+		} else {
+			follow = false;
+		}
 		return (
 			<UserItem
 				name={item.name}
@@ -258,7 +270,7 @@ export default class RoomFollowView extends React.Component {
 				baseUrl={baseUrl}
 				testID={`room-followers-view-item-${ item.username }`}
 				user={user}
-				following={false} // hardcoded
+				following={follow}
 			/>
 		);
 	}
