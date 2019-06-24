@@ -2,14 +2,13 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import {
-	View, Text, Switch, ScrollView, TextInput, StyleSheet, FlatList
+	View, TextInput, StyleSheet
 } from 'react-native';
-import { SafeAreaView } from 'react-navigation';
 import sharedStyles from './Styles';
 import { CustomHeaderButtons, Item } from '../containers/HeaderButton';
 import I18n from '../i18n';
 import RocketChat from '../lib/rocketchat';
-import { COLOR_TEXT_DESCRIPTION, COLOR_WHITE } from '../constants/colors';
+import { COLOR_TEXT_DESCRIPTION } from '../constants/colors';
 
 const styles = StyleSheet.create({
 	// container: {
