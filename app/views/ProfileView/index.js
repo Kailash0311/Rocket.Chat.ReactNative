@@ -52,6 +52,7 @@ export default class ProfileView extends React.Component {
 	})
 
 	static propTypes = {
+		navigation: PropTypes.object,
 		baseUrl: PropTypes.string,
 		user: PropTypes.object,
 		Accounts_CustomFields: PropTypes.string,
@@ -79,10 +80,10 @@ export default class ProfileView extends React.Component {
 
 		try {
 			const { user } = this.props;
-			const result = RocketChat.getAvatarSuggestion();
-			const followers = Object.keys(RocketChat.getFollowers(user.username)).length;
-			const following = Object.keys(RocketChat.getFollowing(user.username)).length;
-			this.setState({ avatarSuggestions: result, followers: followers, following: following });
+			const result = await RocketChat.getAvatarSuggestion();
+			const followers = Object.keys(await RocketChat.getFollowers(user.username)).length;
+			const following = Object.keys(await RocketChat.getFollowing(user.username)).length;
+			this.setState({ avatarSuggestions: result, followers, following });
 		} catch (e) {
 			log('err_get_avatar_suggestion', e);
 		}
@@ -108,7 +109,6 @@ export default class ProfileView extends React.Component {
 	renderFollowersAndFollowing = () => {
 		const { username, followers, following } = this.state;
 		const { navigation } = this.props;
-		// const rid = navigation.getParam('rid');
 		const rid = 'GENERAL';
 
 		return (
