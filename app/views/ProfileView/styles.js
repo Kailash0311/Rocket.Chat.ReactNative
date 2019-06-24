@@ -1,4 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
+import sharedStyles from '../Styles';
 
 export default StyleSheet.create({
 	avatarContainer: {
@@ -29,5 +30,41 @@ export default StyleSheet.create({
 			borderWidth: 2,
 			paddingHorizontal: 10
 		}
-	})
+	}),
+	followContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center'
+	},
+	followLabel: {
+		padding: 10,
+		fontSize: 12,
+		...sharedStyles.textColorNormal,
+		...sharedStyles.textMedium
+	},
+	followingContainer: {
+		borderColor: '#f5f5f5',
+		borderWidth: 1,
+		borderRadius: 2,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginLeft: 10
+	},
+	followersContainer: {
+		marginRight: 10,
+		borderColor: '#f5f5f5',
+		borderWidth: 1,
+		borderRadius: 2,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center'
+	},
+	followContent: {
+		padding: 10,
+		fontSize: 20,
+		// marginRight: 40,
+		...sharedStyles.textColorNormal,
+		...sharedStyles.textMedium
+	}
 });

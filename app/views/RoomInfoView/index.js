@@ -36,7 +36,8 @@ const getRoomTitle = room => (room.t === 'd'
 	baseUrl: state.settings.Site_Url || state.server ? state.server.server : '',
 	user: {
 		id: state.login.user && state.login.user.id,
-		token: state.login.user && state.login.user.token
+		token: state.login.user && state.login.user.token,
+		username: state.login.user && state.login.user.username
 	},
 	Message_TimeFormat: state.settings.Message_TimeFormat
 }))
@@ -96,10 +97,25 @@ export default class RoomInfoView extends React.Component {
 			const roomUserId = RocketChat.getRoomMemberId(this.rid, user.id);
 			try {
 				const result = await RocketChat.getUserInfo(roomUserId);
-				// setting follow and following count manually until we get that from an api.
-				result.user.isFollowing = false; // is the user following the user whose profile he is visiting
-				result.user.following = 12;
-				result.user.followers = 356;
+				/*
+					isFollowing is true if the user is following the fetched user, false otherwise.
+					isFollowing is added as a property under the user which itself is a property of the result.
+				*/
+
+				const followersOfTheUser = await RocketChat.getFollowers(result.user.username);
+				const followingOfTheUser = await RocketChat.getFollowing(result.user.username);
+				if (followersOfTheUser) {
+					if (followersOfTheUser[user.id] === '') {
+						result.user.isFollowing = true;
+					} else {
+						result.user.isFollowing = false;
+					}
+				}
+
+				if (followersOfTheUser || followingOfTheUser) {
+					result.user.following = 0 || Object.keys(followingOfTheUser).length;
+					result.user.followers = 0 || Object.keys(followersOfTheUser).length;
+				}
 				if (result.success) {
 					this.setState({ roomUser: result.user });
 				}
@@ -113,18 +129,20 @@ export default class RoomInfoView extends React.Component {
 		this.rooms.removeAllListeners();
 	}
 
-	follow = () => {
+	follow = async() => {
 		const { roomUser } = this.state;
 		roomUser.isFollowing = true;
 		roomUser.followers += 1;
 		this.setState({ roomUser });
+		await RocketChat.followUser(roomUser.username);
 	}
 
-	unfollow = () => {
+	unfollow = async() => {
 		const { roomUser } = this.state;
 		roomUser.isFollowing = false;
 		roomUser.followers -= 1;
 		this.setState({ roomUser });
+		await RocketChat.unFollowUser(roomUser.username);
 	}
 
 	getRoleDescription = (id) => {
@@ -254,13 +272,14 @@ export default class RoomInfoView extends React.Component {
 
 	renderFollowersAndFollowing = () => {
 		const { roomUser } = this.state;
+		const { username } = roomUser;
 		const { navigation } = this.props;
 		const rid = navigation.getParam('rid');
 		return (
 			<View style={styles.followContainer}>
 				<TouchableHighlight
 					style={styles.buttonContainer}
-					onPress={() => { navigation.navigate('RoomFollowView', { rid, follow: 'Followers' }); }}
+					onPress={() => { navigation.navigate('RoomFollowView', { rid, username, follow: 'Followers' }); }}
 				>
 					<View style={styles.followersContainer}>
 						<Text style={styles.followContent}>{roomUser.followers}</Text>
@@ -269,7 +288,7 @@ export default class RoomInfoView extends React.Component {
 				</TouchableHighlight>
 				<TouchableHighlight
 					style={styles.buttonContainer}
-					onPress={() => { navigation.navigate('RoomFollowView', { rid, follow: 'Following' }); }}
+					onPress={() => { navigation.navigate('RoomFollowView', { username, follow: 'Following' }); }}
 				>
 					<View style={styles.followingContainer}>
 						<Text style={styles.followContent}>{roomUser.following}</Text>
