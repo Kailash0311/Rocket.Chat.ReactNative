@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Avatar from '../../containers/Avatar';
 import Touch from '../../utils/touch';
+import RocketChat from '../../lib/rocketchat';
 import { CustomIcon } from '../../lib/Icons';
 import styles from './styles';
 
@@ -43,16 +44,22 @@ export default class UserItem extends React.Component {
 		};
 	}
 
-	onPressFollow = (/* item */) => {
+	onPressFollow = async() => {
 		const { following } = this.state;
+		const { username } = this.props;
 		this.setState({
 			following: !following
 		});
+		if (!following) {
+			await RocketChat.followUser(username);
+		} else {
+			await RocketChat.unFollowUser(username);
+		}
 	}
 
 	render() {
 		const {
-			name, username, user, baseUrl, onPress, testID, onLongPress, style, icon
+			user, name, username, baseUrl, onPress, testID, onLongPress, style, icon
 		} = this.props;
 		const { following } = this.state;
 		return (
@@ -63,9 +70,11 @@ export default class UserItem extends React.Component {
 						<Text style={styles.name}>{name}</Text>
 						<Text style={styles.username}>@{username}</Text>
 					</View>
-					<Touch onPress={() => this.onPressFollow(username)} style={styles.followContainer}>
-						{following ? <CustomIcon name='check' size={22} style={styles.icon} /> : <CustomIcon name='plus' size={22} style={styles.icon} />}
-					</Touch>
+					{ username !== user.username.username ? (
+						<Touch onPress={() => this.onPressFollow(username)} style={styles.followContainer}>
+							{following ? <CustomIcon name='check' size={22} style={styles.icon} /> : <CustomIcon name='plus' size={22} style={styles.icon} />}
+						</Touch>
+					) : null }
 					{icon ? <CustomIcon name={icon} size={22} style={styles.icon} /> : null}
 				</View>
 			</Touch>
