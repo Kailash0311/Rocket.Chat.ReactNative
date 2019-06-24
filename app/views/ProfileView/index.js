@@ -110,7 +110,6 @@ export default class ProfileView extends React.Component {
 	renderFollowersAndFollowing = () => {
 		const { username, followers, following } = this.state;
 		const { navigation } = this.props;
-		// const rid = navigation.getParam('rid');
 		const rid = 'GENERAL';
 
 		return (
