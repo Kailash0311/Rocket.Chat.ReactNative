@@ -66,10 +66,13 @@ export default class Sidebar extends Component {
 		};
 	}
 
-	componentDidMount() {
+	async componentDidMount() {
 		this.setStatus();
 		// TODO after APIs.
 		// write code which fetches SA from user and adds user service accounts to SAs array.
+		console.log('in componentDidMount');
+		const linkedServiceAccounts = await RocketChat.getLinkedServiceAccounts();
+		console.warn('linkedServiceAccounts are', linkedServiceAccounts);
 		this.setSAs();
 	}
 
