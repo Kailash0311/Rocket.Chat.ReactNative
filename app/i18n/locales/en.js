@@ -323,6 +323,7 @@ export default {
 	Server: 'Server',
 	Servers: 'Servers',
 	Server_version: 'Server version: {{version}}',
+	service_accounts: 'Service Accounts',
 	Set_username_subtitle: 'The username is used to allow others to mention you in messages',
 	Settings: 'Settings',
 	Settings_succesfully_changed: 'Settings succesfully changed!',

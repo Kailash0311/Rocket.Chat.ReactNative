@@ -855,6 +855,9 @@ const RocketChat = {
 			command, params, roomId, previewItem
 		});
 	},
+	getLinkedServiceAccounts() {
+		return this.sdk.methodCall('getLinkedServiceAccounts');
+	},
 	getUserPresence() {
 		return new Promise(async(resolve) => {
 			const serverVersion = reduxStore.getState().server.version;

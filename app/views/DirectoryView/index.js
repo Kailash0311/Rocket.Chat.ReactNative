@@ -137,7 +137,7 @@ export default class DirectoryView extends React.Component {
 
 	onPressItem = async(item) => {
 		const { type } = this.state;
-		if (type === 'users') {
+		if (type === 'users' || type === 'serviceAccounts') {
 			const result = await RocketChat.createDirectMessage(item.username);
 			if (result.success) {
 				this.goRoom({ rid: result.room._id, name: item.username, t: 'd' });
@@ -149,6 +149,12 @@ export default class DirectoryView extends React.Component {
 
 	renderHeader = () => {
 		const { type } = this.state;
+		let renderType = 'Users';
+		if (type ===	 'channels') {
+			renderType = 'Channels';
+		} else if (type === 'serviceAccounts') {
+			renderType = 'service_accounts';
+		}
 		return (
 			<React.Fragment>
 				<SearchBox
@@ -159,7 +165,7 @@ export default class DirectoryView extends React.Component {
 				<Touch onPress={this.toggleDropdown} testID='federation-view-create-channel'>
 					<View style={[sharedStyles.separatorVertical, styles.toggleDropdownContainer]}>
 						<CustomIcon style={styles.toggleDropdownIcon} size={20} name={type === 'users' ? 'user' : 'hashtag'} />
-						<Text style={styles.toggleDropdownText}>{type === 'users' ? I18n.t('Users') : I18n.t('Channels')}</Text>
+						<Text style={styles.toggleDropdownText}>{I18n.t(renderType)}</Text>
 						<CustomIcon name='arrow-down' size={20} style={styles.toggleDropdownArrow} />
 					</View>
 				</Touch>
@@ -194,6 +200,16 @@ export default class DirectoryView extends React.Component {
 					description={item.username}
 					rightLabel={item.federation && item.federation.peer}
 					type='d'
+					{...commonProps}
+				/>
+			);
+		} else if (type === 'serviceAccounts') {
+			return (
+				<DirectoryItem
+					avatar={item.name}
+					description={item.description}
+					rightLabel={`${ item.subscribers } subscribers`}
+					type='c'// [TODO] add icon for SA and change type accordingly.
 					{...commonProps}
 				/>
 			);
