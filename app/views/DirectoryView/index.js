@@ -90,8 +90,8 @@ export default class DirectoryView extends React.Component {
 		this.setState({ loading: true });
 
 		try {
-			const { data, type, globalUsers } = this.state;
-			const query = { text, type, workspace: globalUsers ? 'all' : 'local' };
+			const { data, type } = this.state;
+			const query = { text, type, workspace: 'local' };
 			const directories = await RocketChat.getDirectory({
 				query,
 				offset: data.length,
