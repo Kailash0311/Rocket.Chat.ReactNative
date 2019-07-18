@@ -12,7 +12,11 @@ function createRequestTypes(base, types = defaultTypes) {
 export const LOGIN = createRequestTypes('LOGIN', [
 	...defaultTypes,
 	'SET_SERVICES',
-	'SET_PREFERENCE'
+	'SET_PREFERENCE',
+	'SWITCH'
+]);
+export const SWITCH_ACCOUNT = createRequestTypes('SWITCH_ACCOUNT', [
+	...defaultTypes
 ]);
 export const USER = createRequestTypes('USER', ['SET']);
 export const ROOMS = createRequestTypes('ROOMS', [

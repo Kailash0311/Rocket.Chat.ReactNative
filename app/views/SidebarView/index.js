@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-	ScrollView, Text, View, FlatList, LayoutAnimation, SafeAreaView
+	ScrollView, Text, View, FlatList, LayoutAnimation, SafeAreaView, AsyncStorage
 } from 'react-native';
 import { connect } from 'react-redux';
 import equal from 'deep-equal';
 import { RectButton } from 'react-native-gesture-handler';
-
-import { logout as logoutAction } from '../../actions/login';
+import { logout as logoutAction, loginSwitch as loginSwitchAction } from '../../actions/login';
+import * as actions from '../../actions';
+// import { changeServiceAccount as changeServiceAccountAction } from '../../actions/serviceAccounts';
 import Avatar from '../../containers/Avatar';
 import StatusContainer from '../../containers/Status';
 import Status from '../../containers/Status/Status';
@@ -44,7 +45,8 @@ const permissions = [
 	},
 	baseUrl: state.settings.Site_Url || state.server ? state.server.server : ''
 }), dispatch => ({
-	logout: () => dispatch(logoutAction())
+	logout: () => dispatch(logoutAction()),
+	changeSA: params => dispatch(loginSwitchAction(params))
 }))
 export default class Sidebar extends Component {
 	static propTypes = {
@@ -53,6 +55,7 @@ export default class Sidebar extends Component {
 		Site_Name: PropTypes.string.isRequired,
 		user: PropTypes.object,
 		logout: PropTypes.func.isRequired,
+		changeSA: PropTypes.func.isRequired,
 		activeItemKey: PropTypes.string
 	}
 
@@ -62,18 +65,13 @@ export default class Sidebar extends Component {
 			showStatus: false,
 			status: [],
 			showSA: false,
-			SAs: []
+			SAs: [],
+			loadSAs: false
 		};
 	}
 
-	async componentDidMount() {
+	componentDidMount() {
 		this.setStatus();
-		// TODO after APIs.
-		// write code which fetches SA from user and adds user service accounts to SAs array.
-		console.log('in componentDidMount');
-		const linkedServiceAccounts = await RocketChat.getLinkedServiceAccounts();
-		console.warn('linkedServiceAccounts are', linkedServiceAccounts);
-		this.setSAs();
 	}
 
 	componentWillReceiveProps(nextProps) {
@@ -143,28 +141,21 @@ export default class Sidebar extends Component {
 		});
 	}
 
-	setSAs = () => { // hardcoded
-		// we can add other params such as avatar url to display along with the name which will be fetched by API.
-		this.setState({
-			SAs: [{
-				name: 'Service Account - 1',
-				unread: 5
-			}, {
-				name: 'Service Account - 2',
-				unread: 6
-			}, {
-				name: 'Service Account - 3',
-				unread: 4
-			}]
-		});
-	}
-
 	toggleStatus = () => {
 		LayoutAnimation.easeInEaseOut();
 		this.setState(prevState => ({ showStatus: !prevState.showStatus }));
 	}
 
-	toggleSA = () => {
+	toggleSA = async() => {
+		const { loadSAs } = this.state;
+		if (!loadSAs) {
+			let linkedServiceAccounts = await RocketChat.getLinkedServiceAccounts();
+			linkedServiceAccounts = linkedServiceAccounts.map(sa => ({
+				name: sa.name,
+				unread: sa.unread
+			}));
+			this.setState(prevState => ({ loadSAs: !prevState.loadSAs, SAs: linkedServiceAccounts }));
+		}
 		LayoutAnimation.easeInEaseOut();
 		this.setState(prevState => ({ showSA: !prevState.showSA }));
 	}
@@ -177,6 +168,23 @@ export default class Sidebar extends Component {
 	logout = () => {
 		const { logout } = this.props;
 		logout();
+	}
+
+	switchAccount = async(item) => {
+		const { navigation, changeSA } = this.props;
+		actions.appStart();
+		if (item.name) {
+			await AsyncStorage.setItem('isSA', 'true');
+			AsyncStorage.removeItem(`${ RocketChat.TOKEN_KEY } - ${ item.name }`);
+			const saToken = await AsyncStorage.getItem(`${ RocketChat.TOKEN_KEY } - ${ item.name }`);
+			// this.logout();
+			if (!saToken) {
+				navigation.navigate('LoginView', { SAName: item.name });
+			} else {
+				console.warn('user on press', saToken);
+				changeSA(item.name);
+			}
+		}
 	}
 
 	canSeeAdminPanel() {
@@ -214,16 +222,13 @@ export default class Sidebar extends Component {
 	}
 
 	renderSAItem = ({ item }) => {
-		const { user } = this.props;
 		return (
 			<SidebarItem
 				text={item.name}
 				onPress={() => {
-					console.warn(`Pressed service account ${ item.name }`);
-					user.username = item.name;
-					this.setState(user);
+					this.switchAccount(item)
 				}}
-				right={<Text>{item.unread}</Text>} // hardcoded
+				right={item.unread !== 0 ? <Text>{item.unread}</Text> : null}
 			/>
 		);
 	}
@@ -278,7 +283,7 @@ export default class Sidebar extends Component {
 				<SidebarItem
 					text='Service Accounts'
 					left={<CustomIcon name='cog' size={20} color={COLOR_TEXT} />}
-					right={<View style={{ display: 'flex', flexDirection: 'row' }}><Text>15</Text><CustomIcon name='arrow-down' size={20} style={[styles.headerIcon, showSA && styles.inverted]} /></View>} // hardcoded the number
+					right={<View><CustomIcon name='arrow-down' size={20} style={[styles.headerIcon, showSA && styles.inverted]} /></View>}
 					onPress={this.toggleSA}
 					testID='sidebar-settings'
 				/>
@@ -310,6 +315,8 @@ export default class Sidebar extends Component {
 	}
 
 	render() {
+		// const linkedServiceAccounts = RocketChat.getLinkedServiceAccounts();
+		// console.warn('linkedServiceAccounts are', linkedServiceAccounts);
 		const { showStatus } = this.state;
 		const { user, Site_Name, baseUrl } = this.props;
 

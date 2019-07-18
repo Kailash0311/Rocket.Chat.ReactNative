@@ -5,6 +5,7 @@ import RNUserDefaults from 'rn-user-defaults';
 import moment from 'moment';
 import 'moment/min/locales';
 
+import { AsyncStorage } from 'react-native';
 import * as types from '../actions/actionsTypes';
 import { appStart } from '../actions';
 import { serverFinishAdd, selectServerRequest } from '../actions/server';
@@ -24,14 +25,19 @@ const logoutCall = args => RocketChat.logout(args);
 
 const handleLoginRequest = function* handleLoginRequest({ credentials }) {
 	try {
+		console.warn('here in handle login request', credentials);
 		let result;
 		if (credentials.resume) {
 			result = yield call(loginCall, credentials);
 		} else {
+			console.warn('here in handle login request4');
 			result = yield call(loginWithPasswordCall, credentials);
 		}
+		console.warn('here in handle login request2');
 		return yield put(loginSuccess(result));
+		console.warn('here in handle login request3');
 	} catch (error) {
+		console.log(error);
 		yield put(loginFailure(error));
 	}
 };
@@ -64,7 +70,17 @@ const handleLoginSuccess = function* handleLoginSuccess({ user }) {
 	try {
 		const adding = yield select(state => state.server.adding);
 		yield RNUserDefaults.set(RocketChat.TOKEN_KEY, user.token);
-
+		// console.log('user after login is', user);
+		// // AsyncStorage.removeItem(`${ RocketChat.TOKEN_KEY } - k`);
+		// const isSA = yield AsyncStorage.getItem('isSA');
+		// if (isSA) {
+		// 	console.log('user is', user);
+		// 	console.log("we're here");
+		// 	const SAName = yield AsyncStorage.getItem('currentSA');
+		// 	yield AsyncStorage.setItem(`${ RocketChat.TOKEN_KEY } - ${ SAName }`, JSON.stringify(user));
+		// }
+		console.warn('works in loginSuccess');
+		yield AsyncStorage.setItem(RocketChat.TOKEN_KEY, user.token);
 		const server = yield select(getServer);
 		yield put(roomsRequest());
 		yield fork(fetchPermissions);
@@ -91,7 +107,7 @@ const handleLoginSuccess = function* handleLoginSuccess({ user }) {
 		EventEmitter.emit('connected');
 
 		if (!user.username) {
-			yield put(appStart('setUsername'));
+			// yield put(appStart('setUsername'));
 		} else if (adding) {
 			yield put(serverFinishAdd());
 			yield put(appStart('inside'));
@@ -139,14 +155,30 @@ const handleSetUser = function handleSetUser({ user }) {
 		moment.locale(toMomentLocale(user.language));
 	}
 };
-
+const handleSwitchUser = function* (params) {
+	// yield RocketChat.logout();
+	const userStringified = yield AsyncStorage.getItem(`${ RocketChat.TOKEN_KEY } - ${ params.credentials }`);
+	console.warn('user inside the sagas is ', userStringified);
+	const server = yield select(getServer);
+	if (userStringified) {
+		const user = JSON.parse(userStringified);
+		yield RocketChat.connect({ server, user });
+		yield put(setUser(user));
+		yield put(appStart('inside'));
+	} else {
+		yield RocketChat.connect({ server });
+		yield put(appStart('outside'));
+	}
+};
 const root = function* root() {
 	yield takeLatest(types.LOGIN.REQUEST, handleLoginRequest);
 	yield takeLatest(types.LOGOUT, handleLogout);
 	yield takeLatest(types.USER.SET, handleSetUser);
+	yield takeLatest(types.LOGIN.SWITCH, handleSwitchUser);
 
 	while (true) {
 		const params = yield take(types.LOGIN.SUCCESS);
+		console.log('params are', params);
 		const loginSuccessTask = yield fork(handleLoginSuccess, params);
 		yield take(types.SERVER.SELECT_REQUEST);
 		yield cancel(loginSuccessTask);
