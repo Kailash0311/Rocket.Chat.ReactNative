@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {
-	Keyboard, Text, ScrollView, View, StyleSheet, Alert, LayoutAnimation
+	Keyboard, Text, ScrollView, View, StyleSheet, Alert, LayoutAnimation, AsyncStorage
 } from 'react-native';
 import { connect } from 'react-redux';
 import { SafeAreaView } from 'react-navigation';
@@ -53,7 +53,12 @@ const styles = StyleSheet.create({
 }))
 export default class LoginView extends React.Component {
 	static navigationOptions = ({ navigation }) => {
-		const title = navigation.getParam('title', 'Rocket.Chat');
+		let title = navigation.getParam('title', 'Rocket.Chat');
+		const SAName = navigation.getParam('SAName');
+		if (SAName) {
+			title = `Login into1 ${ SAName }`;
+		}
+		console.warn('sa name is', SAName);
 		return {
 			title,
 			headerRight: <LegalButton navigation={navigation} testID='login-view-more' />
@@ -169,12 +174,19 @@ export default class LoginView extends React.Component {
 		return user.trim() && password.trim();
 	}
 
-	submit = () => {
+	submit = async() => {
 		if (!this.valid()) {
 			return;
 		}
-
+		const { navigation } = this.props;
+		let SAName = '';
+		if (navigation.getParam('SAName')) {
+			SAName = navigation.getParam('SAName');
+		}
 		const { user, password, code } = this.state;
+		if (SAName) {
+			await AsyncStorage.setItem('currentSA', SAName);
+		}
 		const { loginRequest } = this.props;
 		Keyboard.dismiss();
 		loginRequest({ user, password, code });
