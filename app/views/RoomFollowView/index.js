@@ -180,10 +180,13 @@ export default class RoomFollowView extends React.Component {
 		this.setState({ isLoading: true });
 		try {
 			let followersResult = {};
+			let followersArray = [];
 			if (navigation.getParam('follow') === 'Followers') {
 				followersResult = await RocketChat.getFollowers(username);
+				followersArray = followersResult.map(item => item.follower);
 			} else {
 				followersResult = await RocketChat.getFollowing(username);
+				followersArray = followersResult.map(item => item.following);
 			}
 			/*
 			 Both followers and following are named as followers.
@@ -191,7 +194,9 @@ export default class RoomFollowView extends React.Component {
 			let newFollowers = [];
 			const resultPromises = [];
 			let results = [];
-			const followersArray = Object.keys(followersResult);
+			// const followersArray = followers
+			// const followersArray = Object.keys(followersResult);
+			console.warn('followersArray is', followersArray);
 			for (let i = 0; i < followersArray.length; i += 1) {
 				resultPromises.push(RocketChat.getUserInfo(followersArray[i]));
 			}
@@ -261,6 +266,14 @@ export default class RoomFollowView extends React.Component {
 		} else {
 			follow = false;
 		}
+		console.warn('followingof the user', followingOfTheUser);
+		followingOfTheUser.map((followItem) => {
+			if (followItem.following === item._id) {
+				follow = true;
+			}
+			return;
+		});
+		const isFollowing = RocketChat.hasAlreadyFollowed(item.username);
 		return (
 			<UserItem
 				name={item.name}
