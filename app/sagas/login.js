@@ -25,17 +25,13 @@ const logoutCall = args => RocketChat.logout(args);
 
 const handleLoginRequest = function* handleLoginRequest({ credentials }) {
 	try {
-		console.warn('here in handle login request', credentials);
 		let result;
 		if (credentials.resume) {
 			result = yield call(loginCall, credentials);
 		} else {
-			console.warn('here in handle login request4');
 			result = yield call(loginWithPasswordCall, credentials);
 		}
-		console.warn('here in handle login request2');
 		return yield put(loginSuccess(result));
-		console.warn('here in handle login request3');
 	} catch (error) {
 		console.log(error);
 		yield put(loginFailure(error));
@@ -158,7 +154,6 @@ const handleSetUser = function handleSetUser({ user }) {
 const handleSwitchUser = function* (params) {
 	// yield RocketChat.logout();
 	const userStringified = yield AsyncStorage.getItem(`${ RocketChat.TOKEN_KEY } - ${ params.credentials }`);
-	console.warn('user inside the sagas is ', userStringified);
 	const server = yield select(getServer);
 	if (userStringified) {
 		const user = JSON.parse(userStringified);
