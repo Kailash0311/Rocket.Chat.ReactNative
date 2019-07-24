@@ -8,7 +8,6 @@ import equal from 'deep-equal';
 import { RectButton } from 'react-native-gesture-handler';
 import { logout as logoutAction, loginSwitch as loginSwitchAction } from '../../actions/login';
 import * as actions from '../../actions';
-// import { changeServiceAccount as changeServiceAccountAction } from '../../actions/serviceAccounts';
 import Avatar from '../../containers/Avatar';
 import StatusContainer from '../../containers/Status';
 import Status from '../../containers/Status/Status';
@@ -221,17 +220,15 @@ export default class Sidebar extends Component {
 		);
 	}
 
-	renderSAItem = ({ item }) => {
-		return (
-			<SidebarItem
-				text={item.name}
-				onPress={() => {
-					this.switchAccount(item)
-				}}
-				right={item.unread !== 0 ? <Text>{item.unread}</Text> : null}
-			/>
-		);
-	}
+	renderSAItem = ({ item }) => (
+		<SidebarItem
+			text={item.name}
+			onPress={() => {
+				this.switchAccount(item);
+			}}
+			right={item.unread !== 0 ? <Text>{item.unread}</Text> : null}
+		/>
+	)
 
 	renderSA = () => {
 		const { SAs } = this.state;

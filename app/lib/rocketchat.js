@@ -239,10 +239,8 @@ const RocketChat = {
 	},
 
 	async loginWithPassword({ user, password, code }) {
-		console.warn("here in loginWithPassword");
 		let params = { user, password };
 		const state = reduxStore.getState();
-		console.warn('in loginWithPassword 2', state);
 		if (state.settings.LDAP_Enable) {
 			params = {
 				username: user,
@@ -266,7 +264,6 @@ const RocketChat = {
 		}
 
 		try {
-			console.warn('in loginWithPassword 3');
 			return await this.login(params);
 		} catch (error) {
 			throw error;
@@ -283,15 +280,10 @@ const RocketChat = {
 	},
 
 	async login(params) {
-		console.warn('here in login')
 		try {
 			// RC 0.64.0
-			console.warn('here in login', params);
-			console.warn('hey ther'); 
 			await this.sdk.login(params);
-			console.warn('in login with params, decoding');
 			const { result } = this.sdk.currentLogin;
-			console.warn(result);
 			const user = {
 				id: result.userId,
 				token: result.authToken,
