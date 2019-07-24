@@ -112,11 +112,13 @@ export default class CreateSA extends React.Component {
 		this.onChangeTextForPassword = this.onChangeTextForPassword.bind(this);
 		this.onChangeTextForUsername = this.onChangeTextForUsername.bind(this);
 		this.onChangeTextForDesc = this.onChangeTextForDesc.bind(this);
+		this.onChangeTextForConfirmpwd = this.onChangeTextForConfirmpwd.bind(this);
 	}
 
 	state = {
 		name: '',
 		password: '',
+		confirmpwd: '',
 		username: '',
 		description: ''
 	};
@@ -128,13 +130,16 @@ export default class CreateSA extends React.Component {
 
 	shouldComponentUpdate(nextProps, nextState) {
 		const {
-			name, password, username, description
+			name, password, username, description, confirmpwd
 		} = this.state;
 
 		if (nextState.name !== name) {
 			return true;
 		}
 		if (nextState.password !== password) {
+			return true;
+		}
+		if (nextState.confirmpwd !== confirmpwd) {
 			return true;
 		}
 		if (nextState.username !== username) {
@@ -160,6 +165,13 @@ export default class CreateSA extends React.Component {
 		this.setState({ password });
 	}
 
+	onChangeTextForConfirmpwd = (confirmpwd) => {
+		const { navigation } = this.props;
+		const { username, name } = this.state;
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && confirmpwd.trim().length > 0 && username.trim().length > 0) });
+		this.setState({ confirmpwd });
+	}
+
 	onChangeTextForUsername = (username) => {
 		const { navigation } = this.props;
 		const { name, password } = this.state;
@@ -171,6 +183,13 @@ export default class CreateSA extends React.Component {
 		this.setState({ description });
 	}
 
+	checkIfEqualPwds = () => {
+		const { password, confirmpwd } = this.state;
+		if (password !== confirmpwd) {
+			alert('The two passwords do not match');
+		}
+	}
+
 	submit = async() => {
 		const data = this.state;
 		const { navigation } = this.props;
@@ -180,7 +199,7 @@ export default class CreateSA extends React.Component {
 
 	render() {
 		const {
-			name, password, username, description
+			name, password, username, description, confirmpwd
 		} = this.state;
 		return (
 			<View>
@@ -191,6 +210,18 @@ export default class CreateSA extends React.Component {
 					onChangeText={this.onChangeTextForName}
 					returnKeyType='done'
 					placeholder='Name'
+					placeholderTextColor={COLOR_TEXT_DESCRIPTION}
+					autoCorrect={false}
+					autoCapitalize='none'
+					underlineColorAndroid='transparent'
+				/>}
+				{<TextInput
+					label='Set Username Of the Service Account'
+					style={styles.input}
+					value={username}
+					onChangeText={this.onChangeTextForUsername}
+					returnKeyType='done'
+					placeholder='Username'
 					placeholderTextColor={COLOR_TEXT_DESCRIPTION}
 					autoCorrect={false}
 					autoCapitalize='none'
@@ -210,15 +241,17 @@ export default class CreateSA extends React.Component {
 					underlineColorAndroid='transparent'
 				/>}
 				{<TextInput
-					label='Set Username Of the Service Account'
+					label='Confirm Password'
 					style={styles.input}
-					value={username}
-					onChangeText={this.onChangeTextForUsername}
+					value={confirmpwd}
+					onChangeText={this.onChangeTextForConfirmpwd}
+					onBlur={this.checkIfEqualPwds}
 					returnKeyType='done'
-					placeholder='Username'
+					placeholder='Confirm Password'
 					placeholderTextColor={COLOR_TEXT_DESCRIPTION}
 					autoCorrect={false}
 					autoCapitalize='none'
+					secureTextEntry
 					underlineColorAndroid='transparent'
 				/>}
 				{<TextInput
