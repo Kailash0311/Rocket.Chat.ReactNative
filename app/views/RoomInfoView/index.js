@@ -16,6 +16,7 @@ import I18n from '../../i18n';
 import { CustomHeaderButtons, Item } from '../../containers/HeaderButton';
 import StatusBar from '../../containers/StatusBar';
 import log from '../../utils/log';
+import Button from '../../containers/Button';
 
 const PERMISSION_EDIT_ROOM = 'edit-room';
 
@@ -76,7 +77,8 @@ export default class RoomInfoView extends React.Component {
 		};
 		this.state = {
 			room: this.rooms[0] || room || {},
-			roomUser: {}
+			roomUser: {},
+			articlesLink: ''
 		};
 	}
 
@@ -99,6 +101,12 @@ export default class RoomInfoView extends React.Component {
 				}
 			} catch (error) {
 				log('err_get_user_info', error);
+			}
+			try {
+				const result = await RocketChat.redirectToUserArticles(roomUserId);
+				this.setState({ articlesLink: result.link });
+			} catch (error) {
+				console.warn('error in fetching link ', error);
 			}
 		}
 	}
@@ -202,6 +210,29 @@ export default class RoomInfoView extends React.Component {
 		);
 	}
 
+	renderArticlesWebView = () => {
+		const { navigation } = this.props;
+		const { articlesLink } = this.state;
+		console.warn('link is', articlesLink);
+		navigation.navigate('ArticlesView', { articlesLink });
+	}
+
+	renderArticlesButton = () => {
+		const { roomUser } = this.state;
+		console.warn(roomUser);
+		const title = `Articles By ${ roomUser.name }`;
+		return (
+			<View>
+				<Button
+					title={title}
+					type='primary'
+					onPress={this.renderArticlesWebView}
+					testID='render-articles-button'
+				/>
+			</View>
+		);
+	}
+
 	renderBroadcast = () => (
 		<View style={styles.item}>
 			<Text style={styles.itemLabel}>{I18n.t('Broadcast_Channel')}</Text>
@@ -255,6 +286,7 @@ export default class RoomInfoView extends React.Component {
 					{!this.isDirect() ? this.renderItem('description', room) : null}
 					{!this.isDirect() ? this.renderItem('topic', room) : null}
 					{!this.isDirect() ? this.renderItem('announcement', room) : null}
+					{this.isDirect() ? this.renderArticlesButton() : null}
 					{this.isDirect() ? this.renderRoles() : null}
 					{this.isDirect() ? this.renderTimezone() : null}
 					{this.isDirect() ? this.renderCustomFields(roomUser._id) : null}

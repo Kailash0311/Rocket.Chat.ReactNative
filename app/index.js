@@ -171,6 +171,14 @@ const AdminPanelStack = createStackNavigator({
 	defaultNavigationOptions: defaultHeader
 });
 
+const ArticlesStack = createStackNavigator({
+	ArticlesView: {
+		getScreen: () => require('./views/ArticlesView').default
+	}
+}, {
+	defaultNavigationOptions: defaultHeader
+});
+
 SettingsStack.navigationOptions = ({ navigation }) => {
 	let drawerLockMode = 'unlocked';
 	if (navigation.state.index > 0) {
@@ -185,7 +193,8 @@ const ChatsDrawer = createDrawerNavigator({
 	ChatsStack,
 	ProfileStack,
 	SettingsStack,
-	AdminPanelStack
+	AdminPanelStack,
+	ArticlesStack
 }, {
 	contentComponent: Sidebar
 });
