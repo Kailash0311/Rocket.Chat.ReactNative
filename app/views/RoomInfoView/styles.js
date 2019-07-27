@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 import sharedStyles from '../Styles';
-import { COLOR_BACKGROUND_CONTAINER, COLOR_WHITE } from '../../constants/colors';
+import { COLOR_BACKGROUND_CONTAINER, COLOR_WHITE, COLOR_BORDER_FOLLOW } from '../../constants/colors';
 
 export default StyleSheet.create({
 	container: {
@@ -62,7 +62,7 @@ export default StyleSheet.create({
 		...sharedStyles.textMedium
 	},
 	followingContainer: {
-		borderColor: '#f5f5f5',
+		borderColor: COLOR_BORDER_FOLLOW,
 		borderWidth: 1,
 		borderRadius: 2,
 		flexDirection: 'row',

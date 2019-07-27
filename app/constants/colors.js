@@ -14,6 +14,7 @@ export const COLOR_BACKGROUND_NOTIFICATION = '#f8f8f8';
 export const COLOR_BORDER = '#e1e5e8';
 export const COLOR_UNREAD = '#e1e5e8';
 export const COLOR_TOAST = '#0C0D0F';
+export const COLOR_BORDER_FOLLOW = '#f5f5f5';
 export const STATUS_COLORS = {
 	online: '#2de0a5',
 	busy: COLOR_DANGER,

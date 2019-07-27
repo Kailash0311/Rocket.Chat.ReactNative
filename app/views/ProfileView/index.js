@@ -139,12 +139,14 @@ export default class ProfileView extends React.Component {
 		this.setState({ avatar });
 	}
 
-	init = (user) => {
+	init = async(user) => {
 		const { user: userProps } = this.props;
 		const {
 			name, username, emails, customFields
 		} = user || userProps;
-
+		const followers = Object.keys(await RocketChat.getFollowers(user.username)).length;
+		const following = Object.keys(await RocketChat.getFollowing(user.username)).length;
+		this.setState({ followers, following });
 		this.setState({
 			name,
 			username,
@@ -153,7 +155,7 @@ export default class ProfileView extends React.Component {
 			currentPassword: null,
 			avatarUrl: null,
 			avatar: {},
-			customFields: customFields || {}
+			customFields: customFields || {},
 		});
 	}
 

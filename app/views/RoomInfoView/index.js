@@ -103,17 +103,9 @@ export default class RoomInfoView extends React.Component {
 				*/
 
 				const followersOfTheUser = await RocketChat.getFollowers(result.user.username);
-				console.warn('followersOfTheUser', followersOfTheUser);
 				const followingOfTheUser = await RocketChat.getFollowing(result.user.username);
-				console.warn('followingOfTheUser', followingOfTheUser);
 				const isFollowing = await RocketChat.hasAlreadyFollowed(result.user.username);
-				console.warn('isFollowing is', isFollowing);
-				if (isFollowing === true) {
-					result.user.isFollowing = true;
-				} else {
-					result.user.isFollowing = false;
-				}
-
+				result.user.isFollowing = (isFollowing === true);
 				if (followersOfTheUser || followingOfTheUser) {
 					result.user.following = 0 || Object.keys(followingOfTheUser).length;
 					result.user.followers = 0 || Object.keys(followersOfTheUser).length;

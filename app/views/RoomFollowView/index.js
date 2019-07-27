@@ -10,9 +10,9 @@ import UserItem from './UserItem';
 import scrollPersistTaps from '../../utils/scrollPersistTaps';
 import RocketChat from '../../lib/rocketchat';
 import database, { safeAddListener } from '../../lib/realm';
-import { Toast } from '../../utils/info';
+import { LISTENER } from '../../containers/Toast';
+import EventEmitter from '../../utils/events';
 import log from '../../utils/log';
-import { vibrate } from '../../utils/vibration';
 import I18n from '../../i18n';
 import SearchBox from '../../containers/SearchBox';
 import protectedFunction from '../../lib/methods/helpers/protectedFunction';
@@ -154,7 +154,6 @@ export default class RoomFollowView extends React.Component {
 			this.actionSheetOptions.push(I18n.t('Mute'));
 		}
 		this.setState({ userLongPressed: user });
-		vibrate();
 		this.showActionSheet();
 	}
 
@@ -235,7 +234,7 @@ export default class RoomFollowView extends React.Component {
 		const { rid, userLongPressed } = this.state;
 		try {
 			await RocketChat.toggleMuteUserInRoom(rid, userLongPressed.username, !userLongPressed.muted);
-			Toast(I18n.t('User_has_been_key', { key: userLongPressed.muted ? I18n.t('unmuted') : I18n.t('muted') }));
+			EventEmitter.emit(LISTENER, { message: I18n.t('User_has_been_key', { key: userLongPressed.muted ? I18n.t('unmuted') : I18n.t('muted') }) });
 		} catch (e) {
 			log('handleMute', e);
 		}
@@ -260,20 +259,13 @@ export default class RoomFollowView extends React.Component {
 	renderItem = ({ item }) => {
 		const { baseUrl, user } = this.props;
 		const { followingOfTheUser } = this.state;
-		let follow = false;
-		if (followingOfTheUser[item._id] === '') {
-			follow = true;
-		} else {
-			follow = false;
-		}
-		console.warn('followingof the user', followingOfTheUser);
+		let follow = (followingOfTheUser[item._id] === '');
 		followingOfTheUser.map((followItem) => {
 			if (followItem.following === item._id) {
 				follow = true;
 			}
-			return;
+			return followItem;
 		});
-		const isFollowing = RocketChat.hasAlreadyFollowed(item.username);
 		return (
 			<UserItem
 				name={item.name}
