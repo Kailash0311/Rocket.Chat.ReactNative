@@ -14,6 +14,8 @@ import database, { safeAddListener } from '../../lib/realm';
 import RocketChat from '../../lib/rocketchat';
 import RoomTypeIcon from '../../containers/RoomTypeIcon';
 import I18n from '../../i18n';
+import { LISTENER } from '../../containers/Toast';
+import EventEmitter from '../../utils/events';
 import { CustomHeaderButtons, Item } from '../../containers/HeaderButton';
 import StatusBar from '../../containers/StatusBar';
 import log from '../../utils/log';
@@ -144,6 +146,7 @@ export default class RoomInfoView extends React.Component {
 		roomUser.followers += 1;
 		this.setState({ roomUser });
 		await RocketChat.followUser(roomUser.username);
+		EventEmitter.emit(LISTENER, { message: `You're following ${ roomUser.name }` });
 	}
 
 	unfollow = async() => {
@@ -152,6 +155,7 @@ export default class RoomInfoView extends React.Component {
 		roomUser.followers -= 1;
 		this.setState({ roomUser });
 		await RocketChat.unFollowUser(roomUser.username);
+		EventEmitter.emit(LISTENER, { message: `You've unfollowed ${ roomUser.name }` });
 	}
 
 	getRoleDescription = (id) => {

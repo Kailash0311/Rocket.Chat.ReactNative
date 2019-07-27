@@ -41,7 +41,8 @@ import { COLOR_TEXT } from '../../constants/colors';
 		token: state.login.user && state.login.user.token
 	},
 	Accounts_CustomFields: state.settings.Accounts_CustomFields,
-	baseUrl: state.settings.Site_Url || state.server ? state.server.server : ''
+	baseUrl: state.settings.Site_Url || state.server ? state.server.server : '',
+	authToken: state.login.user && state.login.user.token
 }), dispatch => ({
 	setUser: params => dispatch(setUserAction(params))
 }))
@@ -52,6 +53,7 @@ export default class ProfileView extends React.Component {
 	})
 
 	static propTypes = {
+		authToken: PropTypes.string,
 		navigation: PropTypes.object,
 		baseUrl: PropTypes.string,
 		user: PropTypes.object,
@@ -81,9 +83,11 @@ export default class ProfileView extends React.Component {
 
 		try {
 			const { user } = this.props;
-			const result = RocketChat.getAvatarSuggestion();
-			const followers = Object.keys(await RocketChat.getFollowers(user.username)).length;
-			const following = Object.keys(await RocketChat.getFollowing(user.username)).length;
+			const result = await RocketChat.getAvatarSuggestion();
+			const followers = Object.keys(await RocketChat.getFollowers(user.username)).length || 0;
+			console.warn(followers);
+			const following = Object.keys(await RocketChat.getFollowing(user.username)).length || 0;
+			console.warn(following);
 			this.setState({ avatarSuggestions: result, followers, following });
 		} catch (e) {
 			log('err_get_avatar_suggestion', e);
@@ -141,11 +145,12 @@ export default class ProfileView extends React.Component {
 	}
 
 	init = async(user) => {
-		const { user: userProps } = this.props;
+		const { user: userProps, authToken } = this.props;
 		const {
-			name, username, emails, customFields, token
+			name, username, emails, customFields
 		} = user || userProps;
-		const result = await RocketChat.redirectUserToArticles(token);
+		const result = await RocketChat.redirectUserToArticles(authToken);
+		console.warn('result is', result);
 
 		this.setState({
 			name,
