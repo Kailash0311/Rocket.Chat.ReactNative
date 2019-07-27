@@ -9,6 +9,8 @@ import { CustomHeaderButtons, Item } from '../containers/HeaderButton';
 import I18n from '../i18n';
 import RocketChat from '../lib/rocketchat';
 import { COLOR_TEXT_DESCRIPTION } from '../constants/colors';
+import { LISTENER } from '../containers/Toast';
+import EventEmitter from '../utils/events';
 
 const styles = StyleSheet.create({
 	// container: {
@@ -153,29 +155,29 @@ export default class CreateSA extends React.Component {
 
 	onChangeTextForName = (name) => {
 		const { navigation } = this.props;
-		const { username, password } = this.state;
-		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && username.trim().length > 0) });
+		const { username, password, confirmpwd } = this.state;
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && confirmpwd.trim().length > 0 && username.trim().length > 0) });
 		this.setState({ name });
 	}
 
 	onChangeTextForPassword = (password) => {
 		const { navigation } = this.props;
-		const { username, name } = this.state;
-		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && username.trim().length > 0) });
+		const { username, name, confirmpwd } = this.state;
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && confirmpwd.trim().length > 0 && username.trim().length > 0) });
 		this.setState({ password });
 	}
 
 	onChangeTextForConfirmpwd = (confirmpwd) => {
 		const { navigation } = this.props;
-		const { username, name } = this.state;
-		navigation.setParams({ showSubmit: (name.trim().length > 0 && confirmpwd.trim().length > 0 && username.trim().length > 0) });
+		const { username, name, password } = this.state;
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && confirmpwd.trim().length > 0 && password.trim().length > 0 && username.trim().length > 0) });
 		this.setState({ confirmpwd });
 	}
 
 	onChangeTextForUsername = (username) => {
 		const { navigation } = this.props;
-		const { name, password } = this.state;
-		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && username.trim().length > 0) });
+		const { name, password, confirmpwd } = this.state;
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 && confirmpwd.trim().length > 0 && username.trim().length > 0) });
 		this.setState({ username });
 	}
 
@@ -186,15 +188,23 @@ export default class CreateSA extends React.Component {
 	checkIfEqualPwds = () => {
 		const { password, confirmpwd } = this.state;
 		if (password !== confirmpwd) {
-			alert('The two passwords do not match');
+			EventEmitter.emit(LISTENER, { message: 'The two passwords are not equal' });
+			return false;
 		}
+		return true;
 	}
 
 	submit = async() => {
 		const data = this.state;
 		const { navigation } = this.props;
-		await RocketChat.createServiceAccount(data);
-		await navigation.navigate('RoomsListView');
+		if (!this.checkIfEqualPwds()) {
+			EventEmitter.emit(LISTENER, { message: 'The two passwords are not equal' });
+		} else {
+			delete data.confirmpwd;
+			await RocketChat.createServiceAccount(data);
+			EventEmitter.emit(LISTENER, { message: `Service Account - ${ data.name } Created` });
+			navigation.navigate('RoomsListView');
+		}
 	}
 
 	render() {
