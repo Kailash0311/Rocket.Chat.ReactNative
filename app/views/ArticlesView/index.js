@@ -26,7 +26,7 @@ export default class AdminPanelView extends React.Component {
 
 	static propTypes = {
 		baseUrl: PropTypes.string,
-		userId: PropTypes.string,
+		// userId: PropTypes.string,
 		authToken: PropTypes.string,
 		navigation: PropTypes.object
 	}
