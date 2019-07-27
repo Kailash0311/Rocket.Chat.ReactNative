@@ -155,7 +155,7 @@ export default class ProfileView extends React.Component {
 			currentPassword: null,
 			avatarUrl: null,
 			avatar: {},
-			customFields: customFields || {},
+			customFields: customFields || {}
 		});
 	}
 
