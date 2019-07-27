@@ -608,6 +608,21 @@ const RocketChat = {
 		// RC 0.48.0
 		return this.sdk.get('users.info', { userId });
 	},
+	getFollowers(username) {
+		return this.sdk.methodCall('getFollowers', username);
+	},
+	getFollowing(username) {
+		return this.sdk.methodCall('getFollowing', username);
+	},
+	followUser(username) {
+		return this.sdk.methodCall('followUser', username);
+	},
+	unFollowUser(username) {
+		return this.sdk.methodCall('unfollowUser', username);
+	},
+	hasAlreadyFollowed(username) {
+		return this.sdk.methodCall('hasAlreadyFollowed', username);
+	},
 	getRoomMemberId(rid, currentUserId) {
 		if (rid === `${ currentUserId }${ currentUserId }`) {
 			return currentUserId;

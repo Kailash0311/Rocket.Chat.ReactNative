@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 import sharedStyles from '../Styles';
-import { COLOR_BACKGROUND_CONTAINER, COLOR_WHITE } from '../../constants/colors';
+import { COLOR_BACKGROUND_CONTAINER, COLOR_WHITE, COLOR_BORDER_FOLLOW } from '../../constants/colors';
 
 export default StyleSheet.create({
 	container: {
@@ -31,10 +31,20 @@ export default StyleSheet.create({
 		paddingTop: 20,
 		flexDirection: 'row'
 	},
+	buttonContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		padding: 16
+	},
 	roomTitle: {
 		fontSize: 18,
 		...sharedStyles.textColorNormal,
 		...sharedStyles.textMedium
+	},
+	followContainer: {
+		flexDirection: 'row',
+		justifyContent: 'center',
+		alignItems: 'center'
 	},
 	roomTitleRow: {
 		flexDirection: 'row',
@@ -45,8 +55,41 @@ export default StyleSheet.create({
 		bottom: -4,
 		right: -4
 	},
+	followLabel: {
+		padding: 10,
+		fontSize: 12,
+		...sharedStyles.textColorNormal,
+		...sharedStyles.textMedium
+	},
+	followingContainer: {
+		borderColor: COLOR_BORDER_FOLLOW,
+		borderWidth: 1,
+		borderRadius: 2,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center',
+		marginLeft: 10
+	},
+	followersContainer: {
+		marginRight: 10,
+		borderColor: '#f5f5f5',
+		borderWidth: 1,
+		borderRadius: 2,
+		flexDirection: 'row',
+		alignItems: 'center',
+		justifyContent: 'center'
+	},
+	followContent: {
+		padding: 10,
+		fontSize: 20,
+		// marginRight: 40,
+		...sharedStyles.textColorNormal,
+		...sharedStyles.textMedium
+
+	},
 	itemLabel: {
 		marginBottom: 10,
+		marginTop: 10,
 		fontSize: 14,
 		...sharedStyles.textColorNormal,
 		...sharedStyles.textMedium

@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, ScrollView, Keyboard } from 'react-native';
+import {
+	View, ScrollView, Keyboard, TouchableHighlight, Text
+} from 'react-native';
 import { connect } from 'react-redux';
 import Dialog from 'react-native-dialog';
 import SHA256 from 'js-sha256';
@@ -50,6 +52,7 @@ export default class ProfileView extends React.Component {
 	})
 
 	static propTypes = {
+		navigation: PropTypes.object,
 		baseUrl: PropTypes.string,
 		user: PropTypes.object,
 		Accounts_CustomFields: PropTypes.string,
@@ -67,15 +70,20 @@ export default class ProfileView extends React.Component {
 		avatarUrl: null,
 		avatar: {},
 		avatarSuggestions: {},
-		customFields: {}
+		customFields: {},
+		followers: null,
+		following: null
 	}
 
 	async componentDidMount() {
 		this.init();
 
 		try {
+			const { user } = this.props;
 			const result = await RocketChat.getAvatarSuggestion();
-			this.setState({ avatarSuggestions: result });
+			const followers = Object.keys(await RocketChat.getFollowers(user.username)).length;
+			const following = Object.keys(await RocketChat.getFollowing(user.username)).length;
+			this.setState({ avatarSuggestions: result, followers, following });
 		} catch (e) {
 			log('err_get_avatar_suggestion', e);
 		}
@@ -98,16 +106,47 @@ export default class ProfileView extends React.Component {
 		return false;
 	}
 
+	renderFollowersAndFollowing = () => {
+		const { username, followers, following } = this.state;
+		const { navigation } = this.props;
+		const rid = 'GENERAL';
+
+		return (
+			<View style={styles.followContainer}>
+				<TouchableHighlight
+					style={styles.buttonContainer}
+					onPress={() => { navigation.navigate('RoomFollowView', { rid, username, follow: 'Followers' }); }}
+				>
+					<View style={styles.followersContainer}>
+						<Text style={styles.followContent}>{followers}</Text>
+						<Text style={styles.followLabel}>FOLLOWERS</Text>
+					</View>
+				</TouchableHighlight>
+				<TouchableHighlight
+					style={styles.buttonContainer}
+					onPress={() => { navigation.navigate('RoomFollowView', { rid, username, follow: 'Following' }); }}
+				>
+					<View style={styles.followingContainer}>
+						<Text style={styles.followContent}>{following}</Text>
+						<Text style={styles.followLabel}>FOLLOWING</Text>
+					</View>
+				</TouchableHighlight>
+			</View>
+		);
+	}
+
 	setAvatar = (avatar) => {
 		this.setState({ avatar });
 	}
 
-	init = (user) => {
+	init = async(user) => {
 		const { user: userProps } = this.props;
 		const {
 			name, username, emails, customFields
 		} = user || userProps;
-
+		const followers = Object.keys(await RocketChat.getFollowers(user.username)).length;
+		const following = Object.keys(await RocketChat.getFollowing(user.username)).length;
+		this.setState({ followers, following });
 		this.setState({
 			name,
 			username,
@@ -404,6 +443,7 @@ export default class ProfileView extends React.Component {
 								token={user.token}
 							/>
 						</View>
+						{this.renderFollowersAndFollowing()}
 						<RCTextInput
 							inputRef={(e) => { this.name = e; }}
 							label={I18n.t('Name')}
