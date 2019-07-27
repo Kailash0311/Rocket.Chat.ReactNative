@@ -7,8 +7,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import { connect } from 'react-redux';
+import CookieManager from 'react-native-cookies';
 import styles from '../Styles';
-
 // import I18n from '../../i18n';
 import StatusBar from '../../containers/StatusBar';
 import { DrawerButton } from '../../containers/HeaderButton';
@@ -58,19 +58,13 @@ export default class AdminPanelView extends React.Component {
 	}
 
 	render() {
-<<<<<<< HEAD
-		const { navigation } = this.props;
-=======
 		const {
 			navigation, authToken, userId, baseUrl
 		} = this.props;
->>>>>>> 6dbe25d0... Articles Webview: Handle Back Operation Android
 		this.articlesLink = navigation.getParam('articlesLink');
 		if (!this.articlesLink) {
 			return null;
 		}
-<<<<<<< HEAD
-=======
 		// CookieManager.get(baseUrl)
 		// 	.then((res) => {
 		// 		console.warn('CookieManager.get =>', res);
@@ -81,20 +75,14 @@ export default class AdminPanelView extends React.Component {
 		// 		*	no-login appears if cookies are already present.
 		// 		*/
 		// 	});
->>>>>>> 6dbe25d0... Articles Webview: Handle Back Operation Android
 		return (
 			<SafeAreaView style={styles.container} testID='articles-view'>
 				<StatusBar />
 				<WebView
-<<<<<<< HEAD
-					source={{ uri: this.articlesLink }}
-					// injectedJavaScript={`Meteor.loginWithToken('${ authToken }', function() { })`}
-=======
 					source={{ uri: `${ baseUrl }/admin/info?layout=embedded` }}
 					ref={(webView) => { this.webView.ref = webView; }}
 					injectedJavaScript={`Meteor.loginWithToken('${ authToken }', function() { }); setTimeout(function(){ window.location.assign('${ this.articlesLink }')}, 50)`}
 					onNavigationStateChange={(navState) => { this.webView.canGoBack = navState.canGoBack; }}
->>>>>>> 6dbe25d0... Articles Webview: Handle Back Operation Android
 				/>
 			</SafeAreaView>
 		);
