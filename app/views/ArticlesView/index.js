@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import { connect } from 'react-redux';
-import CookieManager from 'react-native-cookies';
+// import CookieManager from 'react-native-cookies';
 import styles from '../Styles';
 // import I18n from '../../i18n';
 import StatusBar from '../../containers/StatusBar';
@@ -59,7 +59,7 @@ export default class AdminPanelView extends React.Component {
 
 	render() {
 		const {
-			navigation, authToken, userId, baseUrl
+			navigation, authToken, baseUrl
 		} = this.props;
 		this.articlesLink = navigation.getParam('articlesLink');
 		if (!this.articlesLink) {
