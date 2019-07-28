@@ -50,6 +50,7 @@ export default class ProfileView extends React.Component {
 	})
 
 	static propTypes = {
+		navigation: PropTypes.object,
 		baseUrl: PropTypes.string,
 		user: PropTypes.object,
 		Accounts_CustomFields: PropTypes.string,
@@ -67,7 +68,8 @@ export default class ProfileView extends React.Component {
 		avatarUrl: null,
 		avatar: {},
 		avatarSuggestions: {},
-		customFields: {}
+		customFields: {},
+		articlesLink: ''
 	}
 
 	async componentDidMount() {
@@ -102,11 +104,12 @@ export default class ProfileView extends React.Component {
 		this.setState({ avatar });
 	}
 
-	init = (user) => {
+	init = async(user) => {
 		const { user: userProps } = this.props;
 		const {
-			name, username, emails, customFields
+			name, username, emails, customFields, token
 		} = user || userProps;
+		const result = await RocketChat.redirectUserToArticles(token);
 
 		this.setState({
 			name,
@@ -116,7 +119,8 @@ export default class ProfileView extends React.Component {
 			currentPassword: null,
 			avatarUrl: null,
 			avatar: {},
-			customFields: customFields || {}
+			customFields: customFields || {},
+			articlesLink: result ? result.link : ''
 		});
 	}
 
@@ -280,6 +284,14 @@ export default class ProfileView extends React.Component {
 		</Touch>
 	)
 
+	renderArticlesWebView = () => {
+		const { navigation } = this.props;
+		const { articlesLink } = this.state;
+		console.warn('link is', articlesLink);
+		navigation.navigate('ArticlesView', { articlesLink });
+	}
+
+
 	renderAvatarButtons = () => {
 		const { avatarUrl, avatarSuggestions } = this.state;
 		const { user, baseUrl } = this.props;
@@ -402,6 +414,14 @@ export default class ProfileView extends React.Component {
 								baseUrl={baseUrl}
 								userId={user.id}
 								token={user.token}
+							/>
+						</View>
+						<View>
+							<Button
+								title='My Articles'
+								type='primary'
+								onPress={this.renderArticlesWebView}
+								testID='render-articles-button'
 							/>
 						</View>
 						<RCTextInput

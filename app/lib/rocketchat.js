@@ -718,6 +718,14 @@ const RocketChat = {
 		// RC 0.55.0
 		return this.sdk.post('users.resetAvatar', { userId });
 	},
+	redirectToUserArticles(userId) {
+		// Method added in https://github.com/WideChat/Rocket.Chat/pull/65
+		return this.sdk.methodCall('redirectToUsersArticles', userId);
+	},
+	redirectUserToArticles(token) {
+		// Method added in https://github.com/WideChat/Rocket.Chat/pull/63
+		return this.sdk.methodCall('redirectUserToArticles', token);
+	},
 	setAvatarFromService({ data, contentType = '', service = null }) {
 		// RC 0.51.0
 		return this.sdk.methodCall('setAvatarFromService', data, contentType, service);
