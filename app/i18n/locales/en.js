@@ -340,6 +340,7 @@ export default {
 	Starred: 'Starred',
 	Start_of_conversation: 'Start of conversation',
 	Started_discussion: 'Started a discussion:',
+	Subscriptions: 'Subscriptions',
 	Submit: 'Submit',
 	Take_a_photo: 'Take a photo',
 	Take_a_video: 'Take a video',

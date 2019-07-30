@@ -136,6 +136,7 @@ export default class RoomsListView extends React.Component {
 			favorites: [],
 			discussions: [],
 			channels: [],
+			subscriptions: [],
 			privateGroup: [],
 			direct: [],
 			livechat: [],
@@ -280,8 +281,9 @@ export default class RoomsListView extends React.Component {
 				this.discussions = this.data.filtered('prid != null');
 				this.channels = this.data.filtered('t == $0 AND prid == null', 'c');
 				this.privateGroup = this.data.filtered('t == $0 AND prid == null', 'p');
-				this.direct = this.data.filtered('t == $0 AND prid == null', 'd');
+				this.direct = this.data.filtered('t == $0 AND prid == null AND sa != true', 'd');
 				this.livechat = this.data.filtered('t == $0 AND prid == null', 'l');
+				this.subscriptions = this.data.filtered('sa == true');
 			} else if (showUnread) {
 				this.chats = this.data.filtered('(unread == 0 && alert == false)');
 			} else {
@@ -300,6 +302,7 @@ export default class RoomsListView extends React.Component {
 				favorites: this.favorites ? this.favorites.slice() : [],
 				discussions: this.discussions ? this.discussions.slice() : [],
 				channels: this.channels ? this.channels.slice() : [],
+				subscriptions: this.subscriptions ? this.subscriptions.slice() : [],
 				privateGroup: this.privateGroup ? this.privateGroup.slice() : [],
 				direct: this.direct ? this.direct.slice() : [],
 				livechat: this.livechat ? this.livechat.slice() : [],
@@ -523,7 +526,7 @@ export default class RoomsListView extends React.Component {
 			return null;
 		} else if (header === 'Favorites' && !showFavorites) {
 			return null;
-		} else if (['Discussions', 'Channels', 'Direct_Messages', 'Private_Groups', 'Livechat'].includes(header) && !groupByType) {
+		} else if (['Discussions', 'Channels', 'Direct_Messages', 'Subscriptions', 'Private_Groups', 'Livechat'].includes(header) && !groupByType) {
 			return null;
 		} else if (header === 'Chats' && groupByType) {
 			return null;
@@ -550,7 +553,7 @@ export default class RoomsListView extends React.Component {
 
 	renderList = () => {
 		const {
-			search, chats, unread, favorites, discussions, channels, direct, privateGroup, livechat
+			search, chats, unread, favorites, discussions, channels, subscriptions, direct, privateGroup, livechat
 		} = this.state;
 
 		if (search.length > 0) {
@@ -577,6 +580,7 @@ export default class RoomsListView extends React.Component {
 				{this.renderSection(favorites, 'Favorites')}
 				{this.renderSection(discussions, 'Discussions')}
 				{this.renderSection(channels, 'Channels')}
+				{this.renderSection(subscriptions, 'Subscriptions')}
 				{this.renderSection(direct, 'Direct_Messages')}
 				{this.renderSection(privateGroup, 'Private_Groups')}
 				{this.renderSection(livechat, 'Livechat')}
