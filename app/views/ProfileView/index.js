@@ -151,7 +151,8 @@ export default class ProfileView extends React.Component {
 		} = user || userProps;
 		const result = await RocketChat.redirectUserToArticles(authToken);
 		console.warn('result is', result);
-
+		const followers = Object.keys(await RocketChat.getFollowers(user.username)).length;
+		const following = Object.keys(await RocketChat.getFollowing(user.username)).length;
 		this.setState({
 			name,
 			username,
@@ -161,7 +162,9 @@ export default class ProfileView extends React.Component {
 			avatarUrl: null,
 			avatar: {},
 			customFields: customFields || {},
-			articlesLink: result ? result.link : ''
+			articlesLink: result ? result.link : '',
+			followers,
+			following
 		});
 	}
 

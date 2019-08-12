@@ -322,11 +322,12 @@ export default class RoomInfoView extends React.Component {
 	renderArticlesButton = () => {
 		const { roomUser } = this.state;
 		console.warn(roomUser);
-		const title = `Articles By ${ roomUser.name }`;
+		const title = 'Articles';
 		return (
-			<View>
+			<View style={styles.buttonContainer}>
 				<Button
 					title={title}
+					style={styles.button}
 					type='primary'
 					onPress={this.renderArticlesWebView}
 					testID='render-articles-button'
@@ -386,11 +387,13 @@ export default class RoomInfoView extends React.Component {
 						<View style={styles.roomTitleContainer}>{ getRoomTitle(room) }</View>
 					</View>
 					{this.isDirect() ? this.renderFollowersAndFollowing() : null}
-					{this.isDirect() ? this.renderFollowButton() : null}
+					<View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+						{this.isDirect() ? this.renderFollowButton() : null}
+						{this.isDirect() ? this.renderArticlesButton() : null}
+					</View>
 					{!this.isDirect() ? this.renderItem('description', room) : null}
 					{!this.isDirect() ? this.renderItem('topic', room) : null}
 					{!this.isDirect() ? this.renderItem('announcement', room) : null}
-					{this.isDirect() ? this.renderArticlesButton() : null}
 					{this.isDirect() ? this.renderRoles() : null}
 					{this.isDirect() ? this.renderTimezone() : null}
 					{this.isDirect() ? this.renderCustomFields(roomUser._id) : null}

@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-navigation';
 import { connect } from 'react-redux';
-import CookieManager from 'react-native-cookies';
+// import CookieManager from 'react-native-cookies';
 import styles from '../Styles';
 // import I18n from '../../i18n';
 import StatusBar from '../../containers/StatusBar';

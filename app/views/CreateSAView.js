@@ -163,7 +163,7 @@ export default class CreateSA extends React.Component {
 	onChangeTextForPassword = (password) => {
 		const { navigation } = this.props;
 		const { username, name, confirmpwd } = this.state;
-		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 /*&& confirmpwd.trim().length > 0*/ && username.trim().length > 0) });
+		navigation.setParams({ showSubmit: (name.trim().length > 0 && password.trim().length > 0 /* && confirmpwd.trim().length > 0 */ && username.trim().length > 0) });
 		this.setState({ password });
 	}
 
@@ -189,7 +189,7 @@ export default class CreateSA extends React.Component {
 		const { password, confirmpwd } = this.state;
 		console.warn(password, confirmpwd);
 		if (password !== confirmpwd) {
-			EventEmitter.emit(LISTENER, { message: 'The two passwords are not equal' });
+			// EventEmitter.emit(LISTENER, { message: 'The two passwords are not equal' });
 			return false;
 		}
 		return true;
@@ -202,6 +202,8 @@ export default class CreateSA extends React.Component {
 			EventEmitter.emit(LISTENER, { message: 'The two passwords are not equal' });
 		} else {
 			delete data.confirmpwd;
+			const dataStr = String(data);
+			EventEmitter.emit(LISTENER, { message: `Helo ${ dataStr }` });
 			await RocketChat.createServiceAccount(data);
 			EventEmitter.emit(LISTENER, { message: `Service Account - ${ data.name } Created` });
 			navigation.navigate('RoomsListView');
