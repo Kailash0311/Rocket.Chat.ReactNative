@@ -40,6 +40,7 @@ import { getDeviceToken } from '../notifications/push';
 import { SERVERS, SERVER_URL } from '../constants/userDefaults';
 
 const TOKEN_KEY = 'reactnativemeteor_usertoken';
+const TOKEN_KEY_SAs = {};
 const SORT_PREFS_KEY = 'RC_SORT_PREFS_KEY';
 export const MARKDOWN_KEY = 'RC_MARKDOWN_KEY';
 const returnAnArray = obj => obj || [];
@@ -49,6 +50,7 @@ const STATUSES = ['offline', 'online', 'away', 'busy'];
 
 const RocketChat = {
 	TOKEN_KEY,
+	TOKEN_KEY_SAs,
 	subscribeRooms,
 	subscribeRoom,
 	canOpenRoom,
@@ -164,7 +166,6 @@ const RocketChat = {
 
 			this.sdk = new RocketchatClient({ host: server, protocol: 'ddp', useSsl });
 			this.getSettings();
-
 			this.sdk.connect()
 				.then(() => {
 					if (user && user.token) {
@@ -217,6 +218,11 @@ const RocketChat = {
 		});
 	},
 
+	createServiceAccount(credentials) {
+		// RC Service Accounts PR
+		return this.sdk.post('serviceAccounts.create', credentials);
+	},
+
 	register(credentials) {
 		// RC 0.50.0
 		return this.sdk.post('users.register', credentials, false);
@@ -235,7 +241,6 @@ const RocketChat = {
 	async loginWithPassword({ user, password, code }) {
 		let params = { user, password };
 		const state = reduxStore.getState();
-
 		if (state.settings.LDAP_Enable) {
 			params = {
 				username: user,
@@ -843,6 +848,14 @@ const RocketChat = {
 			command, params, roomId, previewItem
 		});
 	},
+	async getLinkedServiceAccounts() {
+		try {
+			return await this.sdk.methodCall('getLinkedServiceAccounts');
+		} catch (error) {
+			console.warn(error);
+			throw error;
+		}
+	},
 	getUserPresence() {
 		return new Promise(async(resolve) => {
 			const serverVersion = reduxStore.getState().server.version;
@@ -887,6 +900,7 @@ const RocketChat = {
 		query, count, offset, sort
 	}) {
 		// RC 1.0
+		console.warn('query is ', query);
 		return this.sdk.get('directory', {
 			query, count, offset, sort
 		});

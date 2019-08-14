@@ -6,7 +6,12 @@ export function loginRequest(credentials) {
 		credentials
 	};
 }
-
+export function loginSwitch(credentials) {
+	return {
+		type: types.LOGIN.SWITCH,
+		credentials
+	};
+}
 export function loginSuccess(user) {
 	return {
 		type: types.LOGIN.SUCCESS,

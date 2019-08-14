@@ -61,6 +61,9 @@ export default class DirectoryOptions extends PureComponent {
 		if (itemType === 'channels') {
 			text = 'Channels';
 			icon = 'hashtag';
+		} else if (itemType === 'serviceAccounts') {
+			text = 'service_accounts';
+			icon = 'user';
 		}
 
 		return (
@@ -101,6 +104,7 @@ export default class DirectoryOptions extends PureComponent {
 					</Touch>
 					{this.renderItem('channels')}
 					{this.renderItem('users')}
+					{this.renderItem('serviceAccounts')}
 					{isFederationEnabled
 						? (
 							<React.Fragment>

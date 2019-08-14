@@ -20,6 +20,10 @@ export default StyleSheet.create({
 		width: 30,
 		alignItems: 'center'
 	},
+	itemRight: {
+		width: 50,
+		alignItems: 'center'
+	},
 	itemCenter: {
 		flex: 1
 	},

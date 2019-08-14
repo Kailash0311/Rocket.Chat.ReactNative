@@ -76,6 +76,7 @@ const subscriptionSchema = {
 		fname: { type: 'string', optional: true },
 		rid: { type: 'string', indexed: true },
 		open: { type: 'bool', optional: true },
+		sa: { type: 'bool', optional: true },
 		alert: { type: 'bool', optional: true },
 		roles: 'string[]',
 		unread: { type: 'int', optional: true },
@@ -471,7 +472,7 @@ class DB {
 		return this.databases.activeDB = new Realm({
 			path: `${ RNRealmPath.realmPath }${ path }.realm`,
 			schema,
-			schemaVersion: 13,
+			schemaVersion: 16,
 			migration: (oldRealm, newRealm) => {
 				if (oldRealm.schemaVersion >= 3 && newRealm.schemaVersion <= 13) {
 					const newSubs = newRealm.objects('subscriptions');
@@ -488,6 +489,10 @@ class DB {
 					newRealm.delete(newEmojis);
 					const newSettings = newRealm.objects('settings');
 					newRealm.delete(newSettings);
+				}
+				if (oldRealm.schemaVersion < 16) {
+					const newSubs = newRealm.objects('subscriptions');
+					newRealm.delete(newSubs);
 				}
 			}
 		});

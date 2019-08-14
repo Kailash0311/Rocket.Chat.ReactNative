@@ -1,13 +1,13 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-	ScrollView, Text, View, FlatList, LayoutAnimation, SafeAreaView
+	ScrollView, Text, View, FlatList, LayoutAnimation, SafeAreaView, AsyncStorage
 } from 'react-native';
 import { connect } from 'react-redux';
 import equal from 'deep-equal';
 import { RectButton } from 'react-native-gesture-handler';
-
-import { logout as logoutAction } from '../../actions/login';
+import { logout as logoutAction, loginSwitch as loginSwitchAction } from '../../actions/login';
+import * as actions from '../../actions';
 import Avatar from '../../containers/Avatar';
 import StatusContainer from '../../containers/Status';
 import Status from '../../containers/Status/Status';
@@ -44,7 +44,8 @@ const permissions = [
 	},
 	baseUrl: state.settings.Site_Url || state.server ? state.server.server : ''
 }), dispatch => ({
-	logout: () => dispatch(logoutAction())
+	logout: () => dispatch(logoutAction()),
+	changeSA: params => dispatch(loginSwitchAction(params))
 }))
 export default class Sidebar extends Component {
 	static propTypes = {
@@ -53,6 +54,7 @@ export default class Sidebar extends Component {
 		Site_Name: PropTypes.string.isRequired,
 		user: PropTypes.object,
 		logout: PropTypes.func.isRequired,
+		changeSA: PropTypes.func.isRequired,
 		activeItemKey: PropTypes.string
 	}
 
@@ -60,7 +62,10 @@ export default class Sidebar extends Component {
 		super(props);
 		this.state = {
 			showStatus: false,
-			status: []
+			status: [],
+			showSA: false,
+			SAs: [],
+			loadSAs: false
 		};
 	}
 
@@ -76,11 +81,16 @@ export default class Sidebar extends Component {
 	}
 
 	shouldComponentUpdate(nextProps, nextState) {
-		const { status, showStatus } = this.state;
+		const {
+			status, showStatus, showSA
+		} = this.state;
 		const {
 			Site_Name, user, baseUrl, activeItemKey
 		} = this.props;
 		if (nextState.showStatus !== showStatus) {
+			return true;
+		}
+		if (nextState.showSA !== showSA) {
 			return true;
 		}
 		if (nextProps.Site_Name !== Site_Name) {
@@ -135,6 +145,20 @@ export default class Sidebar extends Component {
 		this.setState(prevState => ({ showStatus: !prevState.showStatus }));
 	}
 
+	toggleSA = async() => {
+		const { loadSAs } = this.state;
+		if (!loadSAs) {
+			let linkedServiceAccounts = await RocketChat.getLinkedServiceAccounts();
+			linkedServiceAccounts = linkedServiceAccounts.map(sa => ({
+				name: sa.name,
+				unread: sa.unread
+			}));
+			this.setState(prevState => ({ loadSAs: !prevState.loadSAs, SAs: linkedServiceAccounts }));
+		}
+		LayoutAnimation.easeInEaseOut();
+		this.setState(prevState => ({ showSA: !prevState.showSA }));
+	}
+
 	sidebarNavigate = (route) => {
 		const { navigation } = this.props;
 		navigation.navigate(route);
@@ -143,6 +167,23 @@ export default class Sidebar extends Component {
 	logout = () => {
 		const { logout } = this.props;
 		logout();
+	}
+
+	switchAccount = async(item) => {
+		const { navigation, changeSA } = this.props;
+		actions.appStart();
+		if (item.name) {
+			await AsyncStorage.setItem('isSA', 'true');
+			AsyncStorage.removeItem(`${ RocketChat.TOKEN_KEY } - ${ item.name }`);
+			const saToken = await AsyncStorage.getItem(`${ RocketChat.TOKEN_KEY } - ${ item.name }`);
+			// this.logout();
+			if (!saToken) {
+				navigation.navigate('LoginView', { SAName: item.name });
+			} else {
+				console.warn('user on press', saToken);
+				changeSA(item.name);
+			}
+		}
 	}
 
 	canSeeAdminPanel() {
@@ -179,8 +220,31 @@ export default class Sidebar extends Component {
 		);
 	}
 
+	renderSAItem = ({ item }) => (
+		<SidebarItem
+			text={item.name}
+			onPress={() => {
+				this.switchAccount(item);
+			}}
+			right={item.unread !== 0 ? <Text>{item.unread}</Text> : null}
+		/>
+	)
+
+	renderSA = () => {
+		const { SAs } = this.state;
+		return (
+			<FlatList
+				key='status-list'
+				data={SAs}
+				renderItem={this.renderSAItem}
+				keyExtractor={keyExtractor}
+			/>
+		);
+	}
+
 	renderNavigation = () => {
 		const { activeItemKey } = this.props;
+		const { showSA } = this.state;
 		return (
 			<React.Fragment>
 				<SidebarItem
@@ -213,6 +277,15 @@ export default class Sidebar extends Component {
 						current={activeItemKey === 'AdminPanelStack'}
 					/>
 				) : null}
+				<SidebarItem
+					text='Service Accounts'
+					left={<CustomIcon name='cog' size={20} color={COLOR_TEXT} />}
+					right={<View><CustomIcon name='arrow-down' size={20} style={[styles.headerIcon, showSA && styles.inverted]} /></View>}
+					onPress={this.toggleSA}
+					testID='sidebar-settings'
+				/>
+				{showSA ? this.renderSA() : null}
+
 				<Separator key='separator-logout' />
 				<SidebarItem
 					text={I18n.t('Logout')}
@@ -239,6 +312,8 @@ export default class Sidebar extends Component {
 	}
 
 	render() {
+		// const linkedServiceAccounts = RocketChat.getLinkedServiceAccounts();
+		// console.warn('linkedServiceAccounts are', linkedServiceAccounts);
 		const { showStatus } = this.state;
 		const { user, Site_Name, baseUrl } = this.props;
 

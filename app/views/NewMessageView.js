@@ -30,9 +30,19 @@ const styles = StyleSheet.create({
 		marginLeft: 60
 	},
 	createChannelButton: {
-		marginVertical: 25
+		marginTop: 35,
+		marginBottom: 5
+	},
+	createSAButton: {
+		marginBottom: 5
 	},
 	createChannelContainer: {
+		height: 47,
+		backgroundColor: COLOR_WHITE,
+		flexDirection: 'row',
+		alignItems: 'center'
+	},
+	createSAContainer: {
 		height: 47,
 		backgroundColor: COLOR_WHITE,
 		flexDirection: 'row',
@@ -126,6 +136,11 @@ export default class NewMessageView extends React.Component {
 		navigation.navigate('SelectedUsersViewCreateChannel', { nextActionID: 'CREATE_CHANNEL', title: I18n.t('Select_Users') });
 	}
 
+	createSA = () => {
+		const { navigation } = this.props;
+		navigation.navigate('CreateSAView', { title: I18n.t('Create_Service_Account') });
+	}
+
 	renderHeader = () => (
 		<View>
 			<SearchBox onChangeText={text => this.onSearchChangeText(text)} testID='new-message-view-search' />
@@ -133,6 +148,12 @@ export default class NewMessageView extends React.Component {
 				<View style={[sharedStyles.separatorVertical, styles.createChannelContainer]}>
 					<CustomIcon style={styles.createChannelIcon} size={24} name='plus' />
 					<Text style={styles.createChannelText}>{I18n.t('Create_Channel')}</Text>
+				</View>
+			</Touch>
+			<Touch onPress={this.createSA} style={styles.createSAButton} testID='new-message-view-create-service-account'>
+				<View style={[sharedStyles.separatorVertical, styles.createSAContainer]}>
+					<CustomIcon style={styles.createChannelIcon} size={24} name='plus' />
+					<Text style={styles.createChannelText}>{I18n.t('Create_Service_Account')}</Text>
 				</View>
 			</Touch>
 		</View>
